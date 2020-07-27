@@ -1,9 +1,9 @@
 <div class="main-wrapper">
 
-  <div class="time-folder">{{time | time}}</div>
+  <div class="time-folder">{{timeValue | time}}</div>
   <div class="button-wrapper">
-    <button (click)="startStop()">start/stop</button>
-    <button (click)="wait()">wait</button>
+    <button (click)="startStop()">{{isStoped$ | async}}</button>
+    <button (click)="wait()" (mousedown)="waiting()">wait</button>
     <button (click)="reset()">reset</button>
   </div>
 </div>
