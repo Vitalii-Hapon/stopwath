@@ -1,1 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
+app-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 36px;
+}
+
+.main-wrapper {
+  width: 35vw;
+  height: 20vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  vertical-align: center;
+}
+
+.time-folder {
+  height: 80%;
+  width: 100%;
+  text-align: center;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: space-between;
+  height: 20%;
+  width: 100%;
+}
+
+button {
+  flex: 0 1 auto;
+  min-width: 20%;
+}
+
