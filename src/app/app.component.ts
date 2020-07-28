@@ -1,5 +1,5 @@
-import {Component, OnDestroy} from '@angular/core';
-import {BehaviorSubject, fromEvent, interval, Observable, Subscription} from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {BehaviorSubject, interval, Observable, Subject, Subscription} from 'rxjs';
 import {buffer, debounceTime, filter, map} from 'rxjs/operators';
 
 @Component({
@@ -7,7 +7,7 @@ import {buffer, debounceTime, filter, map} from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'stopwatch';
   sub: Subscription;
   timeValue = 0;
@@ -15,24 +15,22 @@ export class AppComponent implements OnDestroy {
   timeRunning = false;
   doubleClickSub: Subscription;
   isStoped$ = new BehaviorSubject('start');
-
+  Observable = new Subject();
 
   constructor() {
   }
-
-  startStop(): void {
-    this.startStopwatch();
-  }
-
-  wait(): void {
-    const btn = document.getElementById('wait');
-    const click$ = fromEvent(btn, 'click');
+  ngOnInit(): void {
+    const click$ = this.Observable.asObservable();
     const buff$ = click$.pipe(debounceTime(300));
     this.doubleClickSub = click$.pipe(
       buffer(buff$),
       map(list => list.length),
       filter(x => x === 2)
-    ).subscribe(event => this.stop());
+    ).subscribe(event => {this.stop(); console.log('doubbleclick'); });
+  }
+
+  startStop(): void {
+    this.startStopwatch();
   }
 
   reset(): void {
