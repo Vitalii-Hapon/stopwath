@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, interval, Observable, Subject, Subscription} from 'rxjs';
-import {buffer, debounceTime, filter, map} from 'rxjs/operators';
+import {buffer, debounceTime, filter, map, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,32 +13,38 @@ export class AppComponent implements OnInit, OnDestroy {
   timeValue = 0;
   time$: Observable<number> = interval(1000);
   timeRunning = false;
-  doubleClickSub: Subscription;
   isStoped$ = new BehaviorSubject('start');
-  Observable = new Subject();
+  click$ = new Subject();
+  ngUnsubscribe = new Subject();
 
   constructor() {
   }
+
   ngOnInit(): void {
-    const click$ = this.Observable.asObservable();
-    const buff$ = click$.pipe(debounceTime(300));
-    this.doubleClickSub = click$.pipe(
-      buffer(buff$),
+    this.click$.pipe(
+      takeUntil(this.ngUnsubscribe),
+      buffer(this.click$.pipe(debounceTime(300))),
       map(list => list.length),
       filter(x => x === 2)
-    ).subscribe(event => {this.stop(); console.log('doubbleclick'); });
+    ).subscribe(() => this.stop());
   }
 
   startStop(): void {
     this.startStopwatch();
   }
 
-  reset(): void {
-    if (this.timeValue !== 0) {
+  startStopwatch(): void {
+    if (this.timeRunning) {
       this.stop();
-      this.timeValue = 0;
-      this.startStopwatch();
+      return;
     }
+
+    this.isStoped$.next('stop');
+    this.sub = this.time$.subscribe(() => {
+        this.timeValue++;
+      }
+    );
+    this.timeRunning = !this.timeRunning;
   }
 
   stop(): void {
@@ -47,21 +53,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isStoped$.next('start');
   }
 
-  startStopwatch(): void {
-    if (this.timeRunning) {
+  reset(): void {
+    if (this.timeValue) {
       this.stop();
-    } else {
-      this.isStoped$.next('stop');
-      this.sub = this.time$.subscribe(value => {
-          this.timeValue++;
-        }
-      );
-      this.timeRunning = !this.timeRunning;
+      this.timeValue = 0;
+      this.startStopwatch();
     }
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
-    this.doubleClickSub.unsubscribe();
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }

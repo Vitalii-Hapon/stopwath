@@ -3,7 +3,7 @@
   <div class="time-folder">{{timeValue | time}}</div>
   <div class="button-wrapper">
     <button (click)="startStop()">{{isStoped$ | async}}</button>
-    <button (click)="Observable.next($event)" id="wait">wait</button>
+    <button (click)="click$.next($event)">wait</button>
     <button (click)="reset()">reset</button>
   </div>
 </div>
